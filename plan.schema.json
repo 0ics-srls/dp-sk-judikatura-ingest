@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.dataplatform.0ics.ai/sk-judikatura/plan/1.json",
+  "title": "sk-judikatura plan file (one per item), written by dp-sk-judikatura-convert and read by dp-sk-judikatura-ingest",
+  "type": "object",
+  "required": ["planVersion", "rozhodnutia", "skipped", "coverage", "warnings"],
+  "additionalProperties": false,
+  "properties": {
+    "planVersion": { "const": 1 },
+    "rozhodnutia": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["fonte", "source_id", "court", "cislo", "senat", "ecli", "datum_rozhodnutia", "kolegium", "kolegium_nazov", "merito", "sudca", "text_raw", "text_source", "source_url", "pdf_url", "pii_flags"],
+        "additionalProperties": false,
+        "properties": {
+          "fonte": { "const": "nsud" },
+          "source_id": { "type": "string", "pattern": "^[0-9]+$" },
+          "court": { "enum": ["NSSR", "NSSSR"] },
+          "cislo": { "type": "string", "minLength": 1 },
+          "senat": { "type": ["string", "null"] },
+          "ecli": { "type": ["string", "null"] },
+          "datum_rozhodnutia": { "type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+          "kolegium": { "type": ["string", "null"] },
+          "kolegium_nazov": { "type": ["string", "null"] },
+          "merito": { "type": "string" },
+          "sudca": { "type": ["string", "null"] },
+          "text_raw": { "type": "string", "pattern": "\\S" },
+          "text_source": { "enum": ["api", "pdf", "ocr"] },
+          "source_url": { "type": ["string", "null"] },
+          "pdf_url": { "type": ["string", "null"] },
+          "pii_flags": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "skipped": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["item_ref", "reason"],
+        "additionalProperties": false,
+        "properties": { "item_ref": { "type": "string", "minLength": 1 }, "reason": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "coverage": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["window_from", "window_to", "ids_listed", "ids_taken", "pdf_only"],
+          "additionalProperties": false,
+          "properties": {
+            "window_from": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+            "window_to": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+            "ids_listed": { "type": "integer", "minimum": 0 },
+            "ids_taken": { "type": "integer", "minimum": 0 },
+            "pdf_only": { "type": "integer", "minimum": 0 }
+          }
+        }
+      ]
+    },
+    "warnings": { "type": "array", "items": { "type": "string" } }
+  }
+}

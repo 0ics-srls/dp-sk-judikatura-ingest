@@ -3,12 +3,12 @@
   "type": "stdin",
   "name": "dp-sk-judikatura-ingest",
   "version": "0.1.0",
-  "description": "Loads the prassi plan files (documents, passages, norm references, skipped items, coverage) into the dataset schema, one transaction per item. Upserts; keeps embeddings of unchanged passages.",
+  "description": "Loads the nsud plan files (decisions, passages, skipped items, coverage) into the dataset schema, one transaction per item. Upserts; keeps embeddings of unchanged passages.",
   "author": "open-lex-it",
   "authentication": false,
   "actions": {
     "execute": {
-      "description": "For each item read the plan files of its directory under dirIn and write them to the dataset in one transaction. A document without text is not written. An item that fails rolls back alone.",
+      "description": "For each item read <item>.plan.json under dirIn and write it to the dataset in one transaction. A decision without text is not written. An item that fails rolls back alone.",
       "input": {
         "type": "object",
         "properties": {
@@ -19,20 +19,21 @@
               "type": "object",
               "properties": {
                 "key": { "type": "string", "minLength": 1 },
-                "meta": { "type": "object", "properties": { "kind": { "enum": ["ade", "doctrib"] }, "itemId": { "type": "string" } }, "required": ["kind", "itemId"] }
+                "meta": { "type": "object", "properties": { "kind": { "enum": ["nsud"] }, "itemId": { "type": "string" } }, "required": ["kind", "itemId"] }
               },
               "required": ["key", "meta"]
             }
           },
           "dirIn": { "type": "string", "description": "directory with the plan files" },
           "connString": { "type": "string", "x-secret": true, "description": "dataset connection string" },
-          "schema": { "type": "string", "pattern": "^ds_[a-z0-9_]+$", "description": "dataset schema" }
+          "schema": { "type": "string", "pattern": "^ds_[a-z0-9_]+$", "description": "dataset schema" },
+          "dryRun": { "type": "boolean", "description": "roll every item back and only report the counts (default false)" }
         },
         "required": ["items", "dirIn", "connString", "schema"]
       },
       "output": {
         "type": "object",
-        "description": "{ loaded: [key], metrics: {written.<schema.table>, duplicates_text, skipped_documents, warnings} }"
+        "description": "{ loaded: [key], metrics: {written.<schema.table>, skipped_documents, warnings} }"
       }
     },
     "terminate": {
